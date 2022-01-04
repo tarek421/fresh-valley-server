@@ -21,9 +21,8 @@ app.get('/', (req, res) => {
 
 
 
-
 client.connect(err => {
-  const collection = client.db("freshValley").collection("vegitable");
+  const collection = client.db("freshValley").collection("allProducts");
   console.log('database connected')
 
   app.post('/addProduct', (req, res) => {
@@ -34,6 +33,14 @@ client.connect(err => {
       console.log(result);
       res.send(result.acknowledged);
    })
+  })
+
+  app.get('/products', (req, res) => {
+     collection.find({})
+     .toArray({})
+     .then(result=>{
+        res.send(result)
+     })
   })
 
 
