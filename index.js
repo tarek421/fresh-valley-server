@@ -65,7 +65,7 @@ client.connect(err => {
 
 
   app.get('/myorder', (req, res) =>{
-     orderCollection.find({})
+     orderCollection.find({email: req.query.email})
      .toArray((err, myorder)=>{
         res.send(myorder)
      })
