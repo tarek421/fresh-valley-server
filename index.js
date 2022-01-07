@@ -60,7 +60,14 @@ client.connect(err => {
      .then(result =>{
       console.log(result);
         res.send(result);
-        
+     })
+  })
+
+
+  app.get('/myorder', (req, res) =>{
+     orderCollection.find({})
+     .toArray((err, myorder)=>{
+        res.send(myorder)
      })
   })
 
