@@ -2,6 +2,7 @@ const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const ObjectId = require('mongodb').ObjectId;
 const { MongoClient } = require('mongodb');
 const port = process.env.PORT || 5000;
 const app = express();
@@ -23,13 +24,14 @@ app.get('/', (req, res) => {
 
 
 client.connect(err => {
-  const collection = client.db("freshValley").collection("allProducts");
+  const productCollection = client.db("freshValley").collection("allProducts");
+  const orderCollection = client.db("freshValley").collection("order");
   console.log('database connected')
 
   app.post('/addProduct', (req, res) => {
      const product = req.body;
      console.log(product)
-   collection.insertOne(product)
+     productCollection.insertOne(product)
    .then(result => {
       console.log(result);
       res.send(result.acknowledged);
@@ -37,12 +39,31 @@ client.connect(err => {
   })
 
   app.get('/products', (req, res) => {
-     collection.find({})
-     .toArray({})
-     .then(result=>{
+   productCollection.find({})
+     .toArray((err, result) => {
         res.send(result)
      })
   })
+
+  app.get('/product/:_id', (req, res) => {
+   productCollection.find({_id: ObjectId(req.params._id)})
+     .toArray((err, document)=>{
+        res.send(document);
+     })
+  })
+
+//Order post request
+
+  app.post('/order', (req, res)=>{
+     const order = req.body;
+     orderCollection.insertOne(order)
+     .then(result =>{
+      console.log(result);
+        res.send(result);
+        
+     })
+  })
+
 
 
 
