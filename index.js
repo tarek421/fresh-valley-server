@@ -12,7 +12,7 @@ const app = express();
 var serviceAccount = require("./firebaseConfig/firebase-admin.json");
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
 });
 
 const db_name = process.env.DB_USER;
@@ -34,6 +34,7 @@ app.get("/", (req, res) => {
 client.connect((err) => {
   const productCollection = client.db("freshValley").collection("allProducts");
   const orderCollection = client.db("freshValley").collection("order");
+  const orderCollection2 = client.db("freshValley").collection("order");
   console.log("database connected");
 
   app.post("/addProduct", (req, res) => {
@@ -68,24 +69,39 @@ client.connect((err) => {
     });
   });
 
-    app.get('/myorder', (req, res) =>{
-      const queryEmail = req.query.email;
-      const token = (req.headers.authorization);
-      admin.auth()
+  app.get("/myorder", (req, res) => {
+    const queryEmail = req.query.email;
+    const token = req.headers.authorization;
+    admin
+      .auth()
       .verifyIdToken(token)
-      .then(accessToken =>{
-         const tokenEmail = (accessToken.email);
-         if(queryEmail === tokenEmail){
-            orderCollection.find({email: req.query.email})
-            .toArray((err, myorder)=>{
-               res.send(myorder)
-            })
-         }
+      .then((accessToken) => {
+        const tokenEmail = accessToken.email;
+        if (queryEmail === tokenEmail) {
+          orderCollection
+            .find({ email: req.query.email })
+            .toArray((err, myorder) => {
+              res.send(myorder);
+            });
+        }
       })
-      .catch(error =>{
-         console.log(error);
+      .catch((error) => {
+        console.log(error);
+      });
+  });
+
+  app.get("/all-order", (req, res) => {
+    orderCollection
+      .find({})
+      .toArray((err, result) => {
+        res.send(result);
       })
-    })
+  });
+
 });
+
+
+
+
 
 app.listen(port);
